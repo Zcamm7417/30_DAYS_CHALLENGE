@@ -4,14 +4,6 @@ def calculate_score(strategy_guide):
     win_value = 0
 
     for line in strategy_guide:
-        # A, B, C == ROCK, PAPER, SCISCORS
-        # X, Y, Z == ROCK, PAPER, SCISCORS
-        # A, B, C == 1, 2, 3
-        # X, Y, Z == 1, 2, 3
-        # SO I WILL ONLY GIVE CONDITIONAL STATEMENT TO WHERE I WIN NOT LOSE
-        # A X, B Y, C Z == 3
-        # A Z, B X, C Y == 6 OPPONENT
-        # C X, A Y, B Z == 6 YOU
         opponent_choice, your_choice = line.split()
         A, B, C = 1, 2, 3
         X, Y, Z = 1, 2, 3
