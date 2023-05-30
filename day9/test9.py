@@ -1,33 +1,62 @@
-def simulate_rope(motions):
-    rope_length = 10
-    rope = [0] * rope_length
-    r_value = 0
-    l_value = 0
-    u_value = 0
-    d_value = 0
-    visited = set()
-    tail_positions = set()
+def move_right(grid, pos, steps):
+    for i in range(steps):
+        pos[1] += 1
+        grid[pos[0]][pos[1]] = "#"
+    return pos
 
-    for direction, steps in motions:
-        for _ in range(steps):
-            rope.insert(0, rope.pop())
-            if direction == 'R':
-                r_value += 1
-            elif direction == 'L':
-                l_value += 1
-            elif direction == 'U':
-                u_value += 1
-            elif direction == 'D':
-                d_value += 1
-        
-        visited.add(tuple(rope))
-        tail_positions.add(tuple(rope[-1:]))
-    print(r_value, l_value, u_value, d_value)
-    return len(tail_positions)
+def move_up(grid, pos, steps):
+    for i in range(steps):
+        pos[0] -= 1
+        grid[pos[0]][pos[1]] = "#"
+    return pos
 
+def move_left(grid, pos, steps):
+    for i in range(steps):
+        pos[1] -= 1
+        grid[pos[0]][pos[1]] = "#"
+    return pos
 
-# Example motions for the larger rope
-motions = [('R', 5), ('U', 8), ('L', 8), ('D', 3), ('R', 17), ('D', 10), ('L', 25), ('U', 20)]
+def move_down(grid, pos, steps):
+    for i in range(steps):
+        pos[0] += 1
+        grid[pos[0]][pos[1]] = "#"
+    return pos
 
-num_paths = simulate_rope(motions)
-print("Number of paths visited by the tail:", num_paths)
+def print_grid(grid):
+    for row in grid:
+        print("".join(row))
+
+# Initialize the grid and starting position
+grid = [["." for _ in range(50)] for _ in range(50)]
+pos = [25, 25]
+
+# List of motions and steps
+motions = [("R", 5), ("U", 8), ("L", 8), ("D", 3), ("R", 17), ("D", 10), ("L", 25), ("U", 20)]
+
+# Perform the motions
+for motion, steps in motions:
+    if motion == "R":
+        pos = move_right(grid, pos, steps)
+    elif motion == "U":
+        pos = move_up(grid, pos, steps)
+    elif motion == "L":
+        pos = move_left(grid, pos, steps)
+    elif motion == "D":
+        pos = move_down(grid, pos, steps)
+
+# Clear all positions except the tail (9)
+for row in range(len(grid)):
+    for col in range(len(grid[row])):
+        if grid[row][col] != "#":
+            grid[row][col] = "."
+
+# Print the final grid
+print_grid(grid)
+
+def count_tail_length(grid):
+    tail_length = 0
+    for row in range(grid):
+        for col in range(len(grid[row])):
+            if grid[row][col] == "#":
+                tail_length += 1
+    return tail_length

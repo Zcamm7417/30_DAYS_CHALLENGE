@@ -1,78 +1,49 @@
 def simulate_rope(motions):
-    # Initialize rope positions
-    positions = {(0, 0): set(range(1, 11))}
-    
-    # Iterate through each motion
-    for motion in motions:
-        direction, steps = motion[0], int(motion[1:])
-        
-        # Update head position
-        head = next((pos for pos, knots in positions.items() if 0 in knots), None)
-        if head is None:
-            break
-        new_head = move_position(head, direction, steps)
-        
-        # Determine positions covered by the head
-        new_positions = set()
-        for pos, knots in positions.items():
-            if pos == head or 0 in knots:
-                continue
-            if is_adjacent(pos, new_head) or pos[0] == new_head[0] or pos[1] == new_head[1]:
-                new_positions.add(pos)
-        
-        # Update tail positions
-        tail = next((pos for pos, knots in positions.items() if 0 in knots), None)
-        if tail is None:
-            break
-        new_positions.add(tail)
-        
-        # Update positions dictionary
-        positions[new_head] = positions[head] - {0}
-        positions[head] = set()
-        
-        # Remove covered positions
-        for pos in new_positions:
-            positions.pop(pos, None)
-        
-        # Add new positions
-        positions[new_head].add(0)
-        for pos in new_positions:
-            positions[pos].add(0)
-        
-    # Count unique positions visited by the tail
-    visited_positions = set()
-    for knots in positions.values():
-        visited_positions.update(knots)
-    
-    return len(visited_positions)
+    head = [[0, 0] for _ in range(10)]
+    tail = [[0, 0] for _ in range(10)]
+    visited = set()
+    for nut_idx in range(10):
+        visited.add(tuple(tail[nut_idx]))
 
-def move_position(position, direction, steps):
-    x, y = position
-    if direction == 'R':
-        return x + steps, y
-    elif direction == 'L':
-        return x - steps, y
-    elif direction == 'U':
-        return x, y - steps
-    elif direction == 'D':
-        return x, y + steps
+    for direction, steps in motions:
+        for _ in range(steps):
+            if direction == 'R':
+                for nut_idx in range(10):
+                    head[nut_idx][0] += 1
+            elif direction == 'L':
+                for nut_idx in range(10):
+                    head[nut_idx][0] -= 1
+            elif direction == 'U':
+                for nut_idx in range(10):
+                    head[nut_idx][1] += 1
+            elif direction == 'D':
+                for nut_idx in range(10):
+                    head[nut_idx][1] -= 1
 
-def is_adjacent(pos1, pos2):
-    x1, y1 = pos1
-    x2, y2 = pos2
-    return abs(x1 - x2) <= 1 and abs(y1 - y2) <= 1
+        for nut_idx in range(10):
+            dx, dy = head[nut_idx][0] - tail[nut_idx][0], head[nut_idx][1] - tail[nut_idx][1]
+            while abs(dx) > 1 or abs(dy) > 1:
+                if dx != 0 and dy != 0:
+                    tail[nut_idx][0] += dx // abs(dx)
+                    tail[nut_idx][1] += dy // abs(dy)
+                else:
+                    tail[nut_idx][0] += dx // max(abs(dx), abs(dy))
+                    tail[nut_idx][1] += dy // max(abs(dx), abs(dy))
+                visited.add(tuple(tail[nut_idx]))
+                dx, dy = head[nut_idx][0] - tail[nut_idx][0], head[nut_idx][1] - tail[nut_idx][1]
 
-# Example series of motions
-motions = [
-    'R5',
-    'U8',
-    'L8',
-    'D3',
-    'R17',
-    'D10',
-    'L25',
-    'U20'
-]
+    return len(visited)
 
-result = simulate_rope(motions)
-print("Number of positions visited by the tail:", result)
+def read_motions_from_file(file_path):
+    motions = []
+    with open(file_path, 'r') as file:
+        for line in file:
+            direction, steps = line.strip().split()
+            motions.append((direction, int(steps)))
+    return motions
+
+# Read the motions from the file
+file_path = 'testdata.txt'
+motions = read_motions_from_file(file_path)
+
+print(simulate_rope(motions))
